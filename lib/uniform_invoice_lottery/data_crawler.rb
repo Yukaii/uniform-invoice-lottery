@@ -1,13 +1,15 @@
 require 'nokogiri'
 require 'httpclient'
 require 'json'
+require 'yaml'
 
 module UniformInvoiceLottery
   module DataCrawler
 
     class Crawler
+      attr_accessor :records, :last_updated_at
 
-      def load_lottery
+      def crawl_lottery_data
         # not record found
         @doc = Nokogiri::HTML(client.get_content "http://www.etax.nat.gov.tw/etwmain/front/ETW183W1")
         # lottery_lists = [
@@ -50,10 +52,10 @@ module UniformInvoiceLottery
 
         sort_record!
         records
-      end # load_lottery
+      end # crawl_lottery_data
 
       def sort_record!
-        records = @records.sort_by{ |rec| "#{@year}#{@end_month}".to_i }
+        @records = @records.sort_by{ |rec| "#{rec["year"]}#{rec["end_month"].to_s.rjust(2, "0")}".to_i }.reverse!
       end
 
       def td_xpath(th)
@@ -72,19 +74,15 @@ module UniformInvoiceLottery
 
     class << self
 
-      def load
-        # TODO: check if local file exist
-        crawler.load_lottery
-      end
-
-      def records
+      def refresh
+        crawler.crawl_lottery_data
+        save_record
         crawler.records
       end
 
-      private
-
-      def crawler
-        @@crawler ||= Crawler.new
+      def records
+        load
+        crawler.records
       end
 
       def get_draw_month time=Time.now
@@ -99,11 +97,53 @@ module UniformInvoiceLottery
         end
       end
 
-      def get_lottery_months draw_month=get_draw_month
-        draw_month = get_draw_month(draw_month) if draw_month % 2 == 0
-        return (draw_month-2 + 12)%12, (draw_month-2 + 12)%12 + 1
-      end
+      private
 
-    end
+        def load
+          if load_record
+
+            srt_month, end_month = get_lottery_months
+            year = Time.now.year - 1911
+            return if crawler.last_updated_at && crawler.records && !crawler.records.empty? &&
+              !crawler.records.find{ |rec|
+                rec["year"] == year && rec["start_month"] == srt_month && rec["end_month"] == end_month
+              }.nil?
+          end
+
+          crawler.crawl_lottery_data
+          save_record
+        end
+
+        def load_record dir=ROOT_DIR
+          filepath = File.join(dir, 'record.yaml')
+          return false if !File.exists?(filepath)
+
+          data = YAML.load(File.read(File.join(dir, 'record.yaml')))
+
+          crawler.last_updated_at = Time.parse data["last_updated_at"]
+          crawler.records = data["records"]
+
+          true
+        end
+
+        def save_record dir=ROOT_DIR
+          data = {
+            "last_updated_at" => Time.now.to_s,
+            "records" => crawler.records
+          }
+          File.write(File.join(dir, 'record.yaml'), data.to_yaml)
+        end
+
+        def crawler
+          @@crawler ||= Crawler.new
+        end
+
+        def get_lottery_months draw_month=get_draw_month
+          # draw_month = get_draw_month(draw_month) if draw_month % 2 == 0
+          raise InvalidLotteryMonthError, "奇數月開獎" if draw_month % 2 == 0
+          return (draw_month-2 + 12)%12, (draw_month-2 + 12)%12 + 1
+        end
+
+    end # end class << self
   end
 end

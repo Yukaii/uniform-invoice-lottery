@@ -1,7 +1,7 @@
 require "uniform_invoice_lottery/version"
 require "uniform_invoice_lottery/data_crawler"
-require "uniform_invoice_lottery/updater"
+require "uniform_invoice_lottery/exceptions"
 
 module UniformInvoiceLottery
-  LIB_DIR = File.expand_path('..', __FILE__)
+  ROOT_DIR = File.expand_path('..', __FILE__)
 end
