@@ -97,6 +97,12 @@ module UniformInvoiceLottery
         end
       end
 
+      def get_lottery_months draw_month=get_draw_month
+        # draw_month = get_draw_month(draw_month) if draw_month % 2 == 0
+        raise InvalidLotteryMonthError, "奇數月開獎" if draw_month % 2 == 0
+        return (draw_month-2 + 12)%12, (draw_month-2 + 12)%12 + 1
+      end
+
       private
 
         def load
@@ -136,12 +142,6 @@ module UniformInvoiceLottery
 
         def crawler
           @@crawler ||= Crawler.new
-        end
-
-        def get_lottery_months draw_month=get_draw_month
-          # draw_month = get_draw_month(draw_month) if draw_month % 2 == 0
-          raise InvalidLotteryMonthError, "奇數月開獎" if draw_month % 2 == 0
-          return (draw_month-2 + 12)%12, (draw_month-2 + 12)%12 + 1
         end
 
     end # end class << self

@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'uniform_invoice_lottery'
 
-describe UniformInvoiceLottery do
+describe UniformInvoiceLottery::DataCrawler do
 
   let(:data_crawler) {
     UniformInvoiceLottery::DataCrawler
@@ -26,10 +26,10 @@ describe UniformInvoiceLottery do
       expect(data_crawler.get_draw_month( Time.new(2015, 1, 25) )).to eq( 1)
       expect(data_crawler.get_draw_month( Time.new(2015, 2, 28) )).to eq( 1)
 
-      expect(data_crawler.send(:get_lottery_months, 3)).to eq([1,2])
-      expect(data_crawler.send(:get_lottery_months, 1)).to eq([11,12])
+      expect(data_crawler.get_lottery_months(3)).to eq([1,2])
+      expect(data_crawler.get_lottery_months(1)).to eq([11,12])
       # 奇數月開獎的說
-      expect{ data_crawler.send(:get_lottery_months, 2) }.to raise_error(UniformInvoiceLottery::InvalidLotteryMonthError)
+      expect{ data_crawler.get_lottery_months(2) }.to raise_error(UniformInvoiceLottery::InvalidLotteryMonthError)
     end
   end
 
