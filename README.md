@@ -2,7 +2,6 @@
 
 一個統一發票兌獎的 Gem，還有自動更新功能，還真不賴。自己說。
 
-還沒弄上 rubygems.org。
 
 ## Installation
 
@@ -24,6 +23,7 @@ Or install it yourself as:
 
 回傳號碼結果字串，例如：
 ```ruby
+require 'uniform_invoice_lottery'
 UniformInvoiceLottery.check '82930261', time: Time.new(2015, 7, 26)
 ```
 
