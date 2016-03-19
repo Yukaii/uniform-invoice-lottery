@@ -1,4 +1,5 @@
 # UniformInvoiceLottery
+[![Build Status](https://travis-ci.org/Yukaii/uniform-invoice-lottery.svg?branch=master)](https://travis-ci.org/Yukaii/uniform-invoice-lottery)
 
 一個統一發票兌獎的 Gem，還有自動更新功能，還真不賴。自己說。
 
