@@ -11,6 +11,10 @@ module UniformInvoiceLottery
     def priority
       self.class.const_get(:PRIORITY)
     end
+
+    def to_s
+      "#{title}: NT$ #{amount}"
+    end
   end
 
   class SpecialPrize < Prize
@@ -68,7 +72,7 @@ module UniformInvoiceLottery
   end
 
   class NullPrize < Prize
-    TITLE = "沒中"
+    TITLE = "沒中獎"
     AMOUNT = 0
     PRIORITY = 999
   end
